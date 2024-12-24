@@ -17,15 +17,18 @@ contract MyToken is
 {
     uint256 private _nextTokenId;
     // metadata
+    string public constant METADATA_URI =
+        "ipfs://QmXw7TEAJWKjKifvLE25Z9yjvowWk2NWY3WgnZPUto9XoA";
 
     constructor(
-        address initialOwner
-    ) ERC721("MyToken", "MTK") Ownable(initialOwner) {}
+        string memory tokenName,
+        string memory tokenSymbol
+    ) ERC721(tokenName, tokenSymbol) Ownable(msg.sender) {}
 
-    function safeMint(address to, string memory uri) public onlyOwner {
+    function safeMint(address to) public onlyOwner {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+        _setTokenURI(tokenId, METADATA_URI);
     }
 
     // The following functions are overrides required by Solidity.
