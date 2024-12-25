@@ -54,9 +54,6 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         address newOwner;
     }
 
-    // remember to add visibility for the variable
-    mapping (uint256 => bool) public TokenLocked;
-
     bytes32 private s_lastReceivedMessageId; // Store the last received messageId.
     string private s_lastReceivedText; // Store the last received text.
 
@@ -102,7 +99,6 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
             destReceiver,
             payload
         );
-        TokenLocked[tokenId] = true;
         return messageId;
     }
 
@@ -168,8 +164,6 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         address newOwner = reqData.newOwner;
         uint256 tokenId = reqData.tokenId;
 
-        // check if the nft is locked
-        require(TokenLocked[tokenId],'the NFT is not locked');
         nft.transferFrom(address(this), newOwner, tokenId);
 
         emit TokenUnlocked(tokenId, newOwner);
