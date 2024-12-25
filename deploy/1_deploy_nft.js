@@ -5,6 +5,7 @@ module.exports = async({getNamedAccounts, deployments}) => {
     const {deploy, log} = deployments
     
     log("Deploying the nft contract")
+    // deploy(合约地址，部署参数)
     await deploy("MyToken", {
         contract: "MyToken",
         from: firstAccount,
