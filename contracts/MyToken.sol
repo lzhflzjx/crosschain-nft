@@ -24,9 +24,6 @@ contract MyToken is
         string memory tokenName,
         string memory tokenSymbol
     ) ERC721(tokenName, tokenSymbol) Ownable(msg.sender) {}
-        string memory tokenName,
-        string memory tokenSymbol
-    ) ERC721(tokenName, tokenSymbol) Ownable(msg.sender) {}
 
     function safeMint(address to) public {
         uint256 tokenId = _nextTokenId++;
