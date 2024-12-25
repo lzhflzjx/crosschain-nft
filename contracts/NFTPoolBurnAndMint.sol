@@ -165,7 +165,7 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
         // mint a wrappedToken
         wnft.mintWithSpecificTokenId(newOwner, tokenId);
 
-        emit TokenMint(newOwner, tokenId);
+        emit TokenMint(tokenId,newOwner);
     }
 
     /// @notice Construct a CCIP message.
