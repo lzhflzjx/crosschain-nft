@@ -8,7 +8,7 @@ import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications
 import {IERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {MyToken} from "./MyToken.sol";
+import {WrappedMyToken} from "./WrappedMyToken.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
@@ -21,7 +21,7 @@ import {MyToken} from "./MyToken.sol";
 OwnerIsCreator:控制Owner权限
 CCIPReceiver:CCIP相关函数
  */
-contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
+contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
     using SafeERC20 for IERC20;
 
     // Custom errors to provide more descriptive revert messages.
@@ -41,26 +41,20 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
     );
 
     // Event emitted when a message is received from another chain.
-    event TokenUnlocked(
-        uint256 tokenId,
-        address newOwner
-    );
-
-    // remember to add visibility for the variable
-    MyToken public nft;
+    event TokenMint(uint256 tokenId, address newOwner);
 
     struct RequestData {
         uint256 tokenId;
         address newOwner;
     }
 
-    // remember to add visibility for the variable
-    mapping (uint256 => bool) public TokenLocked;
-
     bytes32 private s_lastReceivedMessageId; // Store the last received messageId.
     string private s_lastReceivedText; // Store the last received text.
 
     IERC20 private s_linkToken;
+
+    // remember to add visibility for the variable
+    WrappedMyToken public wnft;
 
     /// @notice Constructor initializes the contract with the router address.
     /// @param _router The address of the router contract.
@@ -71,7 +65,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         address nftAddr
     ) CCIPReceiver(_router) {
         s_linkToken = IERC20(_link);
-        nft = MyToken(nftAddr);
+        wnft = WrappedMyToken(nftAddr);
     }
 
     /// @dev Modifier that checks the receiver address is not 0.
@@ -82,19 +76,19 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
     }
 
     // lock NFT and send CCIP transaction
-    function lockAndSendNFT(
+    function burnAndSendNFT(
         uint256 tokenId,
         address newOwner,
         uint64 destChainSelector,
         address destReceiver
     ) public returns (bytes32) {
-        // verify if the transaction is sent by owner
-        // comment this because the check is already performed by ERC721
-        // require(nft.ownerOf(tokenId) == msg.sender, "you are not the owner of the NFT");
-
         // tansfer the NFT from owner to the pool
-        nft.transferFrom(msg.sender, address(this), tokenId);
         // .transferFrom：这是ERC-721标准中定义的一个函数，用于从一个地址向另一个地址转移一个特定的NFT。这个函数需要三个参数：发送者地址、接收者地址和要转移的代币ID。
+        wnft.transferFrom(msg.sender, address(this), tokenId);
+
+        // burn the wnft(tokenId) before send to ccip
+        wnft.burn(tokenId);
+
         // send request to Chainlink CCIP to send the NFT to the other Chain
         bytes memory payload = abi.encode(tokenId, newOwner);
         bytes32 messageId = sendMessagePayLINK(
@@ -102,7 +96,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
             destReceiver,
             payload
         );
-        TokenLocked[tokenId] = true;
+        // tokenLocked[tokenId] = true;
         return messageId;
     }
 
@@ -168,11 +162,10 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         address newOwner = reqData.newOwner;
         uint256 tokenId = reqData.tokenId;
 
-        // check if the nft is locked
-        require(TokenLocked[tokenId],'the NFT is not locked');
-        nft.transferFrom(address(this), newOwner, tokenId);
+        // mint a wrappedToken
+        wnft.mintWithSpecificTokenId(newOwner, tokenId);
 
-        emit TokenUnlocked(tokenId, newOwner);
+        emit TokenMint(newOwner, tokenId);
     }
 
     /// @notice Construct a CCIP message.
