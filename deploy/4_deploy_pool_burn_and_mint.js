@@ -14,7 +14,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const ccipSimulatorTx = await deployments.get("CCIPLocalSimulator")
     const ccipSimulator = await ethers.getContractAt("CCIPLocalSimulator", ccipSimulatorTx.address)
     const ccipSimulatorConfig = await ccipSimulator.configuration()
-    destChainRouter = ccipSimulatorConfig.destinationRouter
+    destChainRouter = ccipSimulatorConfig.destinationRouter_
     linkToken = ccipSimulatorConfig.linkToken_
     const wnftTx = await deployments.get("WrappedMyToken")
     wnftAddr = wnftTx.address
