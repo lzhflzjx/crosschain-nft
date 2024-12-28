@@ -62,10 +62,10 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
     constructor(
         address _router,
         address _link,
-        address nftAddr
+        address wnftAddr
     ) CCIPReceiver(_router) {
         s_linkToken = IERC20(_link);
-        wnft = WrappedMyToken(nftAddr);
+        wnft = WrappedMyToken(wnftAddr);
     }
 
     /// @dev Modifier that checks the receiver address is not 0.

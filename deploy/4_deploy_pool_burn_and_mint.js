@@ -4,30 +4,31 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const { firstAccount } = await getNamedAccounts()
     const { deploy, log } = deployments
 
-    log("NFTPoolLockAndRelease Depolying")
+    log("NFTPoolBurnAndMint Depolying")
 
-    // address _router,address _link,address nftAddr
-    let sourceChainRouter
+    // address _router,address _link,address wnftAddr
+    let destChainRouter
     let linkToken
-    let nftAddr
+    let wnftAddr
 
     const ccipSimulatorTx = await deployments.get("CCIPLocalSimulator")
     const ccipSimulator = await ethers.getContractAt("CCIPLocalSimulator", ccipSimulatorTx.address)
     const ccipSimulatorConfig = await ccipSimulator.configuration()
-    sourceChainRouter = ccipSimulatorConfig.sourceRouter_
+    destChainRouter = ccipSimulatorConfig.destinationRouter
     linkToken = ccipSimulatorConfig.linkToken_
-    const nftTx = await deployments.get("MyToken")
-    nftAddr = nftTx.address
+    const wnftTx = await deployments.get("WrappedMyToken")
+    wnftAddr = wnftTx.address
+    console.log('wnftAddr', wnftAddr)
 
 
     // deploy(合约地址，部署参数)
-    await deploy("NFTPoolLockAndRelease", {
-        contract: "NFTPoolLockAndRelease",
+    await deploy("NFTPoolBurnAndMint", {
+        contract: "NFTPoolBurnAndMint",
         from: firstAccount,
         log: true,
-        args: [sourceChainRouter, linkToken, nftAddr]
+        args: [destChainRouter, linkToken, wnftAddr]
     })
-    log("NFTPoolLockAndRelease deployed!")
+    log("NFTPoolBurnAndMint deployed!")
 }
 
-module.exports.tags = ["sourcechain", "all"]
+module.exports.tags = ["destchain", "all"]
