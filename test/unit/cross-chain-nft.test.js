@@ -41,8 +41,6 @@ describe("source chain => dest chain tests",
                 // // requestLinkFromFaucet：用来从水龙头（faucet）请求资金。
                 // // 在区块链测试和开发中，水龙头通常是一个用于分配测试网络的代币的智能合约或服务。
                 await ccipLocalSimulator.requestLinkFromFaucet(poolLnU, ethers.parseEther("10"))
-                console.log('poolMnB.target', poolMnB.target)
-                console.log('chainSelector', chainSelector)
                 await poolLnU.lockAndSendNFT(0, firstAccount, chainSelector, poolMnB.target)
 
                 // // check if owner of nft is pool's address
@@ -51,7 +49,28 @@ describe("source chain => dest chain tests",
                 // // expect(newOwner).to.equal(poolLnU.target)
             }
         )
+
+        // it("test if user can get a wrapped nft in dest chain",
+        //     async function () {
+        //         const owner = await wnft.ownerOf(0)
+        //         expect(owner).to.equal(firstAccount)
+        //     })
     })
+
+// describe("dest chain -> source chain",
+//     async function () {
+//         it('test if user can burn the wnft and send ccip message on dest chain',
+//             async function () {
+//                 await wnft.approve(poolMnB.target, 0)
+//                 await ccipLocalSimulator.requestLinkFromFaucet(poolMnB, ethers.parseEther("10"))
+//                 // transfer the token
+//                 await poolMnB.burnAndMint(0, firstAccount, chainSelector, poolLnU.target)
+//                 const wnftTotalSupply = await wnft.totalSupply()
+//                 expect(wnftTotalSupply).to.equal(0)
+//             }
+//         )
+//     }
+// )
 
 // source chain => dest chain tests
 // test if user can mint a nft from nft contract successfuly

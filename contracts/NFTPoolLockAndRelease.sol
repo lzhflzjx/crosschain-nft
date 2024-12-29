@@ -196,7 +196,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
                     // and ensures compatibility with future CCIP upgrades. Read more about it here: https://docs.chain.link/ccip/best-practices#using-extraargs
                     Client.EVMExtraArgsV2({
                         gasLimit: 200_000, // Gas limit for the callback on the destination chain
-                        allowOutOfOrderExecution: true // Allows the message to be executed out of order relative to other messages from the same sender
+                        allowOutOfOrderExecution: false // Allows the message to be executed out of order relative to other messages from the same sender
                     })
                 ),
                 // Set the feeToken to a feeTokenAddress, indicating specific asset will be used for fees
