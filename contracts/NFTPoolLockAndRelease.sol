@@ -41,10 +41,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
     );
 
     // Event emitted when a message is received from another chain.
-    event TokenUnlocked(
-        uint256 tokenId,
-        address newOwner
-    );
+    event TokenUnlocked(uint256 tokenId, address newOwner);
 
     // remember to add visibility for the variable
     MyToken public nft;
@@ -77,6 +74,12 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         if (_receiver == address(0)) revert InvalidReceiverAddress();
         _;
     }
+
+    // contract a: func1 -> msg.sender
+    // contract b func2 -> call func1
+    // call func1 msg.sender = user's address
+    // call func2 msg.sender = contract b's address
+    // ===>所以不要看合约最初的调用者是谁，要看最终的调用者是谁。msg.sender的值由最终调用的人决定
 
     // lock NFT and send CCIP transaction
     function lockAndSendNFT(
