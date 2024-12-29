@@ -1,4 +1,5 @@
-const { getNamedAccounts } = require("hardhat");
+const {getNamedAccounts, network} = require("hardhat")
+const { developmentChains, networkConfig } = require("../helper-hardhat-config")
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { firstAccount } = await getNamedAccounts()
@@ -11,11 +12,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     let linkToken
     let wnftAddr
 
-    const ccipSimulatorTx = await deployments.get("CCIPLocalSimulator")
-    const ccipSimulator = await ethers.getContractAt("CCIPLocalSimulator", ccipSimulatorTx.address)
-    const ccipSimulatorConfig = await ccipSimulator.configuration()
-    destChainRouter = ccipSimulatorConfig.destinationRouter_
-    linkToken = ccipSimulatorConfig.linkToken_
+    if (developmentChains.includes(network.name)) {
+        const ccipSimulatorTx = await deployments.get("CCIPLocalSimulator")
+        const ccipSimulator = await ethers.getContractAt("CCIPLocalSimulator", ccipSimulatorTx.address)
+        const ccipSimulatorConfig = await ccipSimulator.configuration()
+        destChainRouter = ccipSimulatorConfig.destinationRouter_
+        linkToken = ccipSimulatorConfig.linkToken_
+    } else {
+        router = networkConfig[network.config.chainId].router
+        linkTokenAddr = networkConfig[network.config.chainId].linkToken
+    }
+
     const wnftTx = await deployments.get("WrappedMyToken")
     wnftAddr = wnftTx.address
     console.log('wnftAddr', wnftAddr)
