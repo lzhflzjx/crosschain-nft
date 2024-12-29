@@ -43,34 +43,40 @@ describe("source chain => dest chain tests",
                 await ccipLocalSimulator.requestLinkFromFaucet(poolLnU, ethers.parseEther("10"))
                 await poolLnU.lockAndSendNFT(0, firstAccount, chainSelector, poolMnB.target)
 
-                // // check if owner of nft is pool's address
-                // // const newOwner = await nft.ownerOf(0)
-                // // console.log("test")
-                // // expect(newOwner).to.equal(poolLnU.target)
+                // check if owner of nft is pool's address
+                const newOwner = await nft.ownerOf(0)
+                console.log("test")
+                expect(newOwner).to.equal(poolLnU.target)
             }
         )
 
-        // it("test if user can get a wrapped nft in dest chain",
-        //     async function () {
-        //         const owner = await wnft.ownerOf(0)
-        //         expect(owner).to.equal(firstAccount)
-        //     })
+        it("test if user can get a wrapped nft in dest chain",
+            async function () {
+                const owner = await wnft.ownerOf(0)
+                expect(owner).to.equal(firstAccount)
+            })
     })
 
-// describe("dest chain -> source chain",
-//     async function () {
-//         it('test if user can burn the wnft and send ccip message on dest chain',
-//             async function () {
-//                 await wnft.approve(poolMnB.target, 0)
-//                 await ccipLocalSimulator.requestLinkFromFaucet(poolMnB, ethers.parseEther("10"))
-//                 // transfer the token
-//                 await poolMnB.burnAndMint(0, firstAccount, chainSelector, poolLnU.target)
-//                 const wnftTotalSupply = await wnft.totalSupply()
-//                 expect(wnftTotalSupply).to.equal(0)
-//             }
-//         )
-//     }
-// )
+describe("dest chain -> source chain",
+    async function () {
+        it('test if user can burn the wnft and send ccip message on dest chain',
+            async function () {
+                await wnft.approve(poolMnB.target, 0)
+                await ccipLocalSimulator.requestLinkFromFaucet(poolMnB, ethers.parseEther("10"))
+                // transfer the token
+                await poolMnB.burnAndSendNFT(0, firstAccount, chainSelector, poolLnU.target)
+                const wnftTotalSupply = await wnft.totalSupply()
+                expect(wnftTotalSupply).to.equal(0)
+            }
+        )
+
+        it("test if user have the nft unlocked on source chain",
+            async function () {
+                const owner = await nft.ownerOf(0)
+                expect(owner).to.equal(firstAccount)
+            })
+    }
+)
 
 // source chain => dest chain tests
 // test if user can mint a nft from nft contract successfuly
